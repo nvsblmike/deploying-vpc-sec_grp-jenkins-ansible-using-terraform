@@ -46,7 +46,7 @@ pipeline {
         stage('Push Docker Image to JFrog') {
             steps {
                 script {
-                    docker.withRegistry('https://trialces7pe.jfrog.io', 'b3568e44-b80f-4700-8194-fd0547ee6230') {
+                    docker.withRegistry('https://trialces7pe.jfrog.io', 'd16e1945-cf8f-40e4-a65c-b2a4873d09fc') {
                         dockerImage.push()
                     }
                 }
