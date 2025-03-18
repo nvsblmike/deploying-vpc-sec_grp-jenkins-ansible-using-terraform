@@ -26,7 +26,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 // Execute SonarQube analysis using the SonarQube Scanner
-                withSonarQubeEnv('SonarQubeServer') {
+                withSonarQubeEnv('716e6473-fb60-4989-9fba-6c296e440b13') {
                     sh 'mvn sonar:sonar' // Replace with your SonarQube analysis command
                 }
             }
