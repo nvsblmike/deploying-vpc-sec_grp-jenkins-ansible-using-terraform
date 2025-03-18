@@ -15,21 +15,48 @@ pipeline {
             }
         }
 
+        stage('Ensure Docker is Installed') {
+            steps {
+                script {
+                    sh '''
+                        if ! command -v docker &> /dev/null
+                        then
+                            echo "Docker not found! Please install Docker on the Jenkins agent."
+                            exit 1
+                        fi
+                    '''
+                }
+            }
+        }
+
         stage('Create JFrog Repository') {
             steps {
                 script {
-                    def repoConfig = """{
-                        "key": "${ARTIFACTORY_REPO}",
-                        "rclass": "local",
-                        "packageType": "docker"
-                    }"""
                     withCredentials([string(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', variable: 'ARTIFACTORY_TOKEN')]) {
-                        sh """
-                            curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" \
-                            -X PUT "${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}" \
-                            -H "Content-Type: application/json" \
-                            -d '${repoConfig}' || echo "Repository might already exist"
-                        """
+                        def repoExists = sh(
+                            script: """
+                                curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $ARTIFACTORY_TOKEN" \
+                                -X GET "${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}"
+                            """,
+                            returnStdout: true
+                        ).trim()
+
+                        if (repoExists != "200") {
+                            echo "Repository does not exist. Creating it..."
+                            def repoConfig = """{
+                                "key": "${ARTIFACTORY_REPO}",
+                                "rclass": "local",
+                                "packageType": "docker"
+                            }"""
+                            sh """
+                                curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" \
+                                -X PUT "${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}" \
+                                -H "Content-Type: application/json" \
+                                -d '${repoConfig}'
+                            """
+                        } else {
+                            echo "Repository already exists. Skipping creation."
+                        }
                     }
                 }
             }
@@ -47,10 +74,11 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', variable: 'ARTIFACTORY_TOKEN')]) {
-                        sh """
-                            echo "$ARTIFACTORY_TOKEN" | docker login ${ARTIFACTORY_URL} -u "ci-user" --password-stdin
+                        sh '''
+                            echo "$ARTIFACTORY_TOKEN" | docker login ${ARTIFACTORY_URL}/docker-local -u "ci-user" --password-stdin
                             docker push ${IMAGE_TAG}
-                        """
+                            docker logout ${ARTIFACTORY_URL}/docker-local
+                        '''
                     }
                 }
             }
@@ -59,10 +87,10 @@ pipeline {
 
     post {
         success {
-            echo "Docker image successfully built and pushed to JFrog Artifactory."
+            echo "✅ Docker image successfully built and pushed to JFrog Artifactory."
         }
         failure {
-            echo "Build failed! Check logs for more details."
+            echo "❌ Build failed! Check logs for more details."
         }
     }
 }
