@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = "my-docker-app"
         ARTIFACTORY_URL = "https://trialces7pe.jfrog.io"
         ARTIFACTORY_REPO = "docker-local"
-        IMAGE_TAG = "${ARTIFACTORY_URL}/${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}"
+        IMAGE_TAG = "${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}"  // ✅ Fix: Removed URL from the image tag
     }
 
     stages {
@@ -16,21 +16,21 @@ pipeline {
         }
 
         stage('Ensure Docker is Installed') {
-    steps {
-        script {
-            sh '''
-                if command -v docker &> /dev/null
-                then
-                    echo "Docker is installed. Version:"
-                    docker -v
-                else
-                    echo "Docker not found! Please install Docker on the Jenkins agent."
-                    exit 1
-                fi
-            '''
+            steps {
+                script {
+                    sh '''
+                        if command -v docker &> /dev/null
+                        then
+                            echo "Docker is installed. Version:"
+                            docker -v
+                        else
+                            echo "Docker not found! Please install Docker on the Jenkins agent."
+                            exit 1
+                        fi
+                    '''
+                }
+            }
         }
-    }
-}
 
         stage('Create JFrog Repository') {
             steps {
@@ -65,11 +65,10 @@ pipeline {
             }
         }
 
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build(IMAGE_TAG)
+                    dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}") // ✅ Fix: Removed URL
                 }
             }
         }
@@ -79,9 +78,14 @@ pipeline {
                 script {
                     withCredentials([string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN')]) {
                         sh '''
-                            echo "$ARTIFACTORY_TOKEN" | docker login ${ARTIFACTORY_URL}/docker-local -u "ci-user" --password-stdin
-                            docker push ${IMAGE_TAG}
-                            docker logout ${ARTIFACTORY_URL}/docker-local
+                            echo "$ARTIFACTORY_TOKEN" | docker login ${ARTIFACTORY_URL} -u "ci-user" --password-stdin
+                            
+                            # ✅ Fix: Tag the image correctly before pushing
+                            docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${ARTIFACTORY_URL}/${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}
+                            
+                            docker push ${ARTIFACTORY_URL}/${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}
+                            
+                            docker logout ${ARTIFACTORY_URL}
                         '''
                     }
                 }
