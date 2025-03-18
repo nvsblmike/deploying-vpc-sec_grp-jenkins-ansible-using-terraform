@@ -1,55 +1,65 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "my-docker-app"
+        ARTIFACTORY_URL = "https://trialces7pe.jfrog.io/"
+        ARTIFACTORY_REPO = "docker-local"
+        ARTIFACTORY_USER = credentials('b3568e44-b80f-4700-8194-fd0547ee6230') // Jenkins credential ID
+        ARTIFACTORY_PASSWORD = credentials('b3568e44-b80f-4700-8194-fd0547ee6230') // Jenkins credential ID
+        IMAGE_TAG = "${ARTIFACTORY_URL}/${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}"
+    }
+
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                // Checkout your source code from version control
-                checkout scm
+                git branch: 'main', url: 'https://github.com/nvsblmike/deploying-vpc-sec_grp-jenkins-ansible-using-terraform.git'
             }
         }
 
-        stage('Build') {
+        stage('Create JFrog Repository') {
             steps {
-                // Build your project (compile, package, etc.)
-                echo "happy" // Replace with your build command
+                script {
+                    def repoConfig = """{
+                        "key": "${ARTIFACTORY_REPO}",
+                        "rclass": "local",
+                        "packageType": "docker"
+                    }"""
+                    sh """
+                        curl -u ${ARTIFACTORY_USER}:${ARTIFACTORY_PASSWORD} \
+                        -X PUT "${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}" \
+                        -H "Content-Type: application/json" \
+                        -d '${repoConfig}' || echo "Repository might already exist"
+                    """
+                }
             }
         }
 
-        stage('Unit Tests') {
+        stage('Build Docker Image') {
             steps {
-                // Run unit tests
-                echo "test" // Replace with your unit test command
+                script {
+                    dockerImage = docker.build(IMAGE_TAG)
+                }
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Push Docker Image to JFrog') {
             steps {
-                // Execute SonarQube analysis using the SonarQube Scanner
-                // withSonarQubeEnv('716e6473-fb60-4989-9fba-6c296e440b13') {
-                    echo "analysis" // Replace with your SonarQube analysis command
-                // }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                // Deploy your application (if applicable)
-                // sh '...'
-                echo 'Skipping deployment for now...' 
+                script {
+                    docker.withRegistry('https://https://trialces7pe.jfrog.io/', 'b3568e44-b80f-4700-8194-fd0547ee6230') {
+                        dockerImage.push()
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            // This block executes if the pipeline succeeds
-            echo 'Pipeline succeeded!'
+            echo "Docker image successfully built and pushed to JFrog Artifactory."
         }
-
         failure {
-            // This block executes if the pipeline fails
-            echo 'Pipeline failed!'
+            echo "Build failed! Check logs for more details."
         }
     }
 }
