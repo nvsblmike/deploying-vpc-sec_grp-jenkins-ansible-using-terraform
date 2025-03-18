@@ -1,72 +1,53 @@
 pipeline {
     agent any
 
-    environment {
-        SONARQUBE_TOKEN = credentials('df764ea7-863e-4577-ab5a-995389c5041e') // Ensure correct credentials ID
-    }
-
     stages {
-        stage('Cleanup Workspace') {
-            steps {
-                script {
-                    sh 'rm -rf * || true'
-                }
-            }
-        }
-
         stage('Checkout') {
             steps {
-                script {
-                    checkout([$class: 'GitSCM',
-                        branches: [[name: '*/main']],  // Ensure 'main' branch is used
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [[$class: 'CleanCheckout']],  // Ensures a fresh checkout
-                        submoduleCfg: [],
-                        userRemoteConfigs: [[
-                            url: 'https://github.com/nvsblmike/deploying-vpc-sec_grp-jenkins-ansible-using-terraform.git',
-                            credentialsId: '0b5f59f0-67e7-487a-8e47-bd0b35326452'
-                        ]]
-                    ])
-                }
+                // Checkout your source code from version control
+                checkout scm
             }
         }
-
 
         stage('Build') {
             steps {
-                script {
-                    sh 'echo "Build Step Running..."'
-                    // Add actual build commands (e.g., Terraform, Ansible, etc.)
-                }
+                // Build your project (compile, package, etc.)
+                sh 'mvn clean package' // Replace with your build command
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                // Run unit tests
+                sh 'mvn test' // Replace with your unit test command
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                script {
-                    withSonarQubeEnv('SonarQube') {
-                        sh 'sonar-scanner -Dsonar.projectKey=my-project -Dsonar.sources=.'
-                    }
+                // Execute SonarQube analysis using the SonarQube Scanner
+                withSonarQubeEnv('SonarQubeServer') {
+                    sh 'mvn sonar:sonar' // Replace with your SonarQube analysis command
                 }
             }
         }
 
-        stage('Quality Gate') {
+        stage('Deploy') {
             steps {
-                script {
-                    timeout(time: 2, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
-                    }
-                }
+                // Deploy your application (if applicable)
+                // sh '...'
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            // This block executes if the pipeline succeeds
+            echo 'Pipeline succeeded!'
         }
+
         failure {
+            // This block executes if the pipeline fails
             echo 'Pipeline failed!'
         }
     }
