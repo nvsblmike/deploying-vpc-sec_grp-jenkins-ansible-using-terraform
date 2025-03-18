@@ -16,18 +16,21 @@ pipeline {
         }
 
         stage('Ensure Docker is Installed') {
-            steps {
-                script {
-                    sh '''
-                        if ! command -v docker &> /dev/null
-                        then
-                            echo "Docker not found! Please install Docker on the Jenkins agent."
-                            exit 1
-                        fi
-                    '''
-                }
-            }
+    steps {
+        script {
+            sh '''
+                if command -v docker &> /dev/null
+                then
+                    echo "Docker is installed. Version:"
+                    docker -v
+                else
+                    echo "Docker not found! Please install Docker on the Jenkins agent."
+                    exit 1
+                fi
+            '''
         }
+    }
+}
 
         stage('Create JFrog Repository') {
             steps {
