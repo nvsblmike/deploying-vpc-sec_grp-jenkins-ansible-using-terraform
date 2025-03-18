@@ -35,7 +35,7 @@ pipeline {
         stage('Create JFrog Repository') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', variable: 'ARTIFACTORY_TOKEN')]) {
+                    withCredentials([string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN')]) {
                         def repoExists = sh(
                             script: """
                                 curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $ARTIFACTORY_TOKEN" \
@@ -77,7 +77,7 @@ pipeline {
         stage('Push Docker Image to JFrog') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', variable: 'ARTIFACTORY_TOKEN')]) {
+                    withCredentials([string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN')]) {
                         sh '''
                             echo "$ARTIFACTORY_TOKEN" | docker login ${ARTIFACTORY_URL}/docker-local -u "ci-user" --password-stdin
                             docker push ${IMAGE_TAG}
