@@ -322,6 +322,7 @@ resource "aws_instance" "jenkins_agent" {
   }
 }
 
+
 # Supporting Data Sources
 # Replace Amazon Linux AMI data source with Ubuntu
 data "aws_ami" "ubuntu" {
