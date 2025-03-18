@@ -36,6 +36,7 @@ pipeline {
             steps {
                 // Deploy your application (if applicable)
                 // sh '...'
+                echo 'Skipping deployment for now...' 
             }
         }
     }
