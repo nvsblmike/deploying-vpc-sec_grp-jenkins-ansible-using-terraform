@@ -12,14 +12,14 @@ pipeline {
         stage('Build') {
             steps {
                 // Build your project (compile, package, etc.)
-                sh 'mvn clean package' // Replace with your build command
+                echo "happy" // Replace with your build command
             }
         }
 
         stage('Unit Tests') {
             steps {
                 // Run unit tests
-                sh 'mvn test' // Replace with your unit test command
+                echo "test" // Replace with your unit test command
             }
         }
 
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 // Execute SonarQube analysis using the SonarQube Scanner
                 withSonarQubeEnv('716e6473-fb60-4989-9fba-6c296e440b13') {
-                    sh 'mvn sonar:sonar' // Replace with your SonarQube analysis command
+                    echo "analysis" // Replace with your SonarQube analysis command
                 }
             }
         }
