@@ -26,9 +26,9 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 // Execute SonarQube analysis using the SonarQube Scanner
-                withSonarQubeEnv('716e6473-fb60-4989-9fba-6c296e440b13') {
+                // withSonarQubeEnv('716e6473-fb60-4989-9fba-6c296e440b13') {
                     echo "analysis" // Replace with your SonarQube analysis command
-                }
+                // }
             }
         }
 
