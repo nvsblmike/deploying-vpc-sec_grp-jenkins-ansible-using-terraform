@@ -23,9 +23,9 @@ pipeline {
                         "rclass": "local",
                         "packageType": "docker"
                     }"""
-                    withCredentials([usernamePassword(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', usernameVariable: 'ARTIFACTORY_USER', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+                    withCredentials([string(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', variable: 'ARTIFACTORY_TOKEN')]) {
                         sh """
-                            curl -u $ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD \
+                            curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" \
                             -X PUT "${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}" \
                             -H "Content-Type: application/json" \
                             -d '${repoConfig}' || echo "Repository might already exist"
@@ -46,8 +46,11 @@ pipeline {
         stage('Push Docker Image to JFrog') {
             steps {
                 script {
-                    docker.withRegistry('https://trialces7pe.jfrog.io', 'd16e1945-cf8f-40e4-a65c-b2a4873d09fc') {
-                        dockerImage.push()
+                    withCredentials([string(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', variable: 'ARTIFACTORY_TOKEN')]) {
+                        sh """
+                            echo "$ARTIFACTORY_TOKEN" | docker login ${ARTIFACTORY_URL} -u "ci-user" --password-stdin
+                            docker push ${IMAGE_TAG}
+                        """
                     }
                 }
             }
