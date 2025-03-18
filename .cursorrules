@@ -1,0 +1,10 @@
+## About Project
+
+This is a simple attendance management system built with Next.js, Tailwind CSS, and Lucide React.
+•⁠  ⁠A login page for admin using their Invex credentials found in MongoDB
+•⁠  ⁠Page to view all Clockin with day filter
+•⁠  ⁠⁠Page for admin to approve all attendance of the day. In case he identified someone didn’t show up to the factory he can disapprove their attendance with reason or remark
+Admin must approve attendance
+Admin can only approve that has checked in and checked out
+New clockin must be validated by the user's stored selfie against the clockin selfie
+
