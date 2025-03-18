@@ -219,7 +219,7 @@ resource "aws_instance" "ansible_controller" {
 
 resource "aws_instance" "jenkins_master" {
   ami                    = data.aws_ami.ubuntu.id 
-  instance_type          = "t3.micro"
+  instance_type          = "t3.medium"
   subnet_id              = module.vpc.public_subnets[0]
   vpc_security_group_ids = [aws_security_group.jenkins_master_sg.id]
   key_name               = aws_key_pair.generated_key.key_name
