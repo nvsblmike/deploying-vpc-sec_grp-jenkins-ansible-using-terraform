@@ -12,6 +12,8 @@ crash.log
 *.tfvars
 *.tfvars.json
 
+node_modules
+
 .ssh/
 *.pem
 *.key
