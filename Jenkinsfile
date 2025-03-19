@@ -6,6 +6,7 @@ pipeline {
         ARTIFACTORY_URL = "trialces7pe.jfrog.io"
         ARTIFACTORY_REPO = "react-docker"
         IMAGE_TAG = "${ARTIFACTORY_URL}/${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}"
+        DOCKER_TAG = "${IMAGE_NAME}:${BUILD_NUMBER}"
         ARTIFACTORY_USERNAME = "soundboylesh77@gmail.com"  // Securely stored username
         ARTIFACTORY_PASSWORD = credentials('docker-repo') // Securely stored API Token
     }
@@ -51,7 +52,7 @@ pipeline {
                     def dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
 
                     sh """
-                        docker tag ${dockerImage} ${IMAGE_TAG}
+                        docker tag ${DOCKER_TAG} ${IMAGE_TAG}
                         echo "${ARTIFACTORY_PASSWORD}" | docker login -u "${ARTIFACTORY_USERNAME}" --password-stdin "${ARTIFACTORY_URL}"
                         docker push ${IMAGE_TAG}
                     """
