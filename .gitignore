@@ -14,6 +14,7 @@ crash.log
 
 node_modules
 
+
 .ssh/
 *.pem
 *.key
