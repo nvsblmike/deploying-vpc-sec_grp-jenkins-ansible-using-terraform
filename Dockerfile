@@ -1,41 +1,20 @@
-# Use Bun base image
-FROM oven/bun:1 as builder
-
-# Set working directory
+FROM node:18 AS build
 WORKDIR /app
+COPY package*.json ./
 
-# Copy package files
-COPY package.json bun.lock ./
+# Explicitly install dependencies including node-sass-chokidar
+RUN npm install --legacy-peer-deps --force && \
+    npm install node-sass-chokidar --legacy-peer-deps --force && \
+    npm cache clean --force
 
-# Install dependencies
-RUN bun install --frozen-lockfile
-
-# Copy source code
 COPY . .
 
-# Build the application
-RUN bun --bun run build
+# Ensure node-sass-chokidar runs before build
+RUN npx node-sass-chokidar src/ -o src/ && npm run build
 
-# Production image
-FROM oven/bun:1-slim
-
-WORKDIR /app
-# Uncomment the following line in case you want to disable telemetry during runtime.
-ENV NEXT_TELEMETRY_DISABLED=1
-# Copy standalone output and required files
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lock ./bun.lock
-
-# Install only production dependencies
-RUN bun install
-
+# Production stage
+FROM nginx:1.25.3-alpine
+COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
-# Expose port
-EXPOSE 3111
-ENV PORT=3111
-
-# Start the application using the setup script
-CMD ["bun", "server.js"]
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]
