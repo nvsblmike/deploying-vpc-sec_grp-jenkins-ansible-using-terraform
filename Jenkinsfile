@@ -3,9 +3,9 @@ pipeline {
 
     environment {
         IMAGE_NAME = "my-docker-app"
-        ARTIFACTORY_URL = "https://trialces7pe.jfrog.io"
+        ARTIFACTORY_URL = "trialces7pe.jfrog.io"  // Removed `https://`
         ARTIFACTORY_REPO = "docker-local"
-        IMAGE_TAG = "${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}"  // ✅ Fix: Removed URL from the image tag
+        IMAGE_TAG = "${ARTIFACTORY_URL}/${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}"
     }
 
     stages {
@@ -35,11 +35,14 @@ pipeline {
         stage('Create JFrog Repository') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN')]) {
+                    withCredentials([
+                        string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN'),
+                        string(credentialsId: 'artifactory-username', variable: 'ARTIFACTORY_USERNAME')
+                    ]) {
                         def repoExists = sh(
                             script: """
-                                curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $ARTIFACTORY_TOKEN" \
-                                -X GET "${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}"
+                                curl -s -o /dev/null -w "%{http_code}" -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN \
+                                -X GET "https://${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}"
                             """,
                             returnStdout: true
                         ).trim()
@@ -52,8 +55,8 @@ pipeline {
                                 "packageType": "docker"
                             }"""
                             sh """
-                                curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" \
-                                -X PUT "${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}" \
+                                curl -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN \
+                                -X PUT "https://${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}" \
                                 -H "Content-Type: application/json" \
                                 -d '${repoConfig}'
                             """
@@ -68,7 +71,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}") // ✅ Fix: Removed URL
+                    def dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
                 }
             }
         }
@@ -76,16 +79,18 @@ pipeline {
         stage('Push Docker Image to JFrog') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN')]) {
+                    withCredentials([
+                        string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN'),
+                        string(credentialsId: 'artifactory-username', variable: 'ARTIFACTORY_USERNAME')
+                    ]) {
                         sh '''
-                            echo "$ARTIFACTORY_TOKEN" | docker login ${ARTIFACTORY_URL} -u "ci-user" --password-stdin
+                            echo "$ARTIFACTORY_TOKEN" | docker login https://${ARTIFACTORY_URL} -u "$ARTIFACTORY_USERNAME" --password-stdin
                             
-                            # ✅ Fix: Tag the image correctly before pushing
-                            docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${ARTIFACTORY_URL}/${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}
+                            docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_TAG}
                             
-                            docker push ${ARTIFACTORY_URL}/${ARTIFACTORY_REPO}/${IMAGE_NAME}:${BUILD_NUMBER}
+                            docker push ${IMAGE_TAG}
                             
-                            docker logout ${ARTIFACTORY_URL}
+                            docker logout https://${ARTIFACTORY_URL}
                         '''
                     }
                 }
