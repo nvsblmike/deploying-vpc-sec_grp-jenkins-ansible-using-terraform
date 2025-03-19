@@ -51,7 +51,6 @@ pipeline {
                     def dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
 
                     sh """
-                        docker build -t ${dockerImage} .
                         docker tag ${dockerImage} ${IMAGE_TAG}
                         echo "${ARTIFACTORY_PASSWORD}" | docker login -u "${ARTIFACTORY_USERNAME}" --password-stdin "${ARTIFACTORY_URL}"
                         docker push ${IMAGE_TAG}
