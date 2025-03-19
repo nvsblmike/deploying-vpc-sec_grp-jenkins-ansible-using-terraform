@@ -35,13 +35,10 @@ pipeline {
         stage('Create JFrog Repository') {
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN'),
-                        string(credentialsId: 'artifactory-username', variable: 'ARTIFACTORY_USERNAME')
-                    ]) {
+                    withCredentials([string(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', variable: 'ARTIFACTORY_TOKEN')]) {
                         def repoExists = sh(
                             script: """
-                                curl -s -o /dev/null -w "%{http_code}" -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN \
+                                curl -s -o /dev/null -w "%{http_code}" -u _apikey:$ARTIFACTORY_TOKEN \
                                 -X GET "https://${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}"
                             """,
                             returnStdout: true
@@ -55,7 +52,7 @@ pipeline {
                                 "packageType": "docker"
                             }"""
                             sh """
-                                curl -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN \
+                                curl -u _apikey:$ARTIFACTORY_TOKEN \
                                 -X PUT "https://${ARTIFACTORY_URL}/artifactory/api/repositories/${ARTIFACTORY_REPO}" \
                                 -H "Content-Type: application/json" \
                                 -d '${repoConfig}'
@@ -79,12 +76,9 @@ pipeline {
         stage('Push Docker Image to JFrog') {
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: '29716f24-0464-4d5f-87c7-7fbd65088fc5', variable: 'ARTIFACTORY_TOKEN'),
-                        string(credentialsId: 'artifactory-username', variable: 'ARTIFACTORY_USERNAME')
-                    ]) {
+                    withCredentials([string(credentialsId: 'b3568e44-b80f-4700-8194-fd0547ee6230', variable: 'ARTIFACTORY_TOKEN')]) {
                         sh '''
-                            echo "$ARTIFACTORY_TOKEN" | docker login https://${ARTIFACTORY_URL} -u "$ARTIFACTORY_USERNAME" --password-stdin
+                            echo "$ARTIFACTORY_TOKEN" | docker login https://${ARTIFACTORY_URL} -u _apikey --password-stdin
                             
                             docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_TAG}
                             
