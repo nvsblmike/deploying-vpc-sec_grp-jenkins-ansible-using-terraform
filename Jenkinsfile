@@ -50,10 +50,12 @@ pipeline {
                 script {
                     def dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
 
-                    docker.withRegistry("https://${ARTIFACTORY_URL}", 'b5db2c2c-9508-4394-a5f0-095eaa278e58') {
-                        dockerImage.tag("${IMAGE_TAG}")
-                        dockerImage.push()
-                    }
+                    sh """
+                        docker build -t ${dockerImage} .
+                        docker tag ${dockerImage} ${IMAGE_TAG}
+                        echo "${ARTIFACTORY_PASSWORD}" | docker login -u "${ARTIFACTORY_USERNAME}" --password-stdin "${ARTIFACTORY_URL}"
+                        docker push ${IMAGE_TAG}
+                    """
                 }
             }
         }
