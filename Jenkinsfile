@@ -50,7 +50,7 @@ pipeline {
                 script {
                     def dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
 
-                    docker.withRegistry("https://${ARTIFACTORY_URL}", 'b3568e44-b80f-4700-8194-fd0547ee6230') {
+                    docker.withRegistry("https://${ARTIFACTORY_URL}", 'docker-repo') {
                         dockerImage.tag("${IMAGE_TAG}")
                         dockerImage.push()
                     }
