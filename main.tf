@@ -48,6 +48,46 @@ module "vpc" {
   }
 }
 
+module "eks" {
+  source            = "terraform-aws-modules/eks/aws"
+  version           = "20.0.0"  # Ensure you're using a compatible version
+  cluster_name      = "my-eks-cluster"
+  cluster_version   = "1.27"  # Set your desired Kubernetes version
+  vpc_id            = module.vpc.vpc_id
+  subnet_ids        = module.vpc.private_subnets  # Use private subnets for security
+
+  enable_irsa       = true  # Enable IAM roles for service accounts
+
+  eks_managed_node_groups = {
+    default = {
+      instance_types = ["t3.medium"]
+      min_size       = 1
+      max_size       = 3
+      desired_size   = 2
+      disk_size      = 20
+    }
+  }
+
+  cluster_addons = {
+    coredns = {
+      resolve_conflicts = "OVERWRITE"
+    }
+    kube-proxy = {
+      resolve_conflicts = "OVERWRITE"
+    }
+    vpc-cni = {
+      resolve_conflicts = "OVERWRITE"
+    }
+  }
+
+  tags = {
+    Terraform   = "true"
+    Environment = "Production"
+    Project     = "CI/CD Pipeline"
+    CostCenter  = "DevOps"
+  }
+}
+
 # Security Groups
 resource "aws_security_group" "ansible_sg" {
   name        = "ansible-controller-sg"
