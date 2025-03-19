@@ -38,7 +38,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        echo "${ARTIFACTORY_PASSWORD}" | docker login -u "${ARTIFACTORY_USERNAME}" --password-stdin ${ARTIFACTORY_URL}
+                        echo "${ARTIFACTORY_PASSWORD}" | docker login -u "${ARTIFACTORY_USERNAME}" --password-stdin ${ARTIFACTORY_PASSWORD}
                     """
                 }
             }
