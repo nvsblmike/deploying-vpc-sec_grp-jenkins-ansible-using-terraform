@@ -1,0 +1,104 @@
+{
+    "NetworkInterfaces": [
+        {
+            "Association": {
+                "IpOwnerId": "005562793260",
+                "PublicDnsName": "ec2-34-237-134-133.compute-1.amazonaws.com",
+                "PublicIp": "34.237.134.133"
+            },
+            "Attachment": {
+                "AttachTime": "2025-03-20T17:39:06+00:00",
+                "AttachmentId": "eni-attach-0426e4ea46c91bf52",
+                "DeleteOnTermination": false,
+                "DeviceIndex": 2,
+                "NetworkCardIndex": 0,
+                "InstanceOwnerId": "005562793260",
+                "Status": "attached"
+            },
+            "AvailabilityZone": "us-east-1a",
+            "Description": "ClientVPN Endpoint resource. EndpointId: cvpn-endpoint-0c02ded884edf71e1",
+            "Groups": [
+                {
+                    "GroupName": "my-eks-cluster-cluster-20250319123538176900000003",
+                    "GroupId": "sg-009f7e37c98b62b44"
+                }
+            ],
+            "InterfaceType": "interface",
+            "Ipv6Addresses": [],
+            "MacAddress": "02:bc:84:68:59:a7",
+            "NetworkInterfaceId": "eni-0a2cfd518c1c4414f",
+            "OwnerId": "677276109057",
+            "PrivateDnsName": "ip-10-0-101-249.ec2.internal",
+            "PrivateIpAddress": "10.0.101.249",
+            "PrivateIpAddresses": [
+                {
+                    "Association": {
+                        "IpOwnerId": "005562793260",
+                        "PublicDnsName": "ec2-34-237-134-133.compute-1.amazonaws.com",
+                        "PublicIp": "34.237.134.133"
+                    },
+                    "Primary": true,
+                    "PrivateDnsName": "ip-10-0-101-249.ec2.internal",
+                    "PrivateIpAddress": "10.0.101.249"
+                }
+            ],
+            "RequesterId": "513586326826",
+            "RequesterManaged": false,
+            "SourceDestCheck": true,
+            "Status": "in-use",
+            "SubnetId": "subnet-0c62d5c85cbf3fc25",
+            "TagSet": [],
+            "VpcId": "vpc-00a5791a6a2f92c0e"
+        },
+        {
+            "Association": {
+                "IpOwnerId": "005562793260",
+                "PublicDnsName": "ec2-98-80-17-198.compute-1.amazonaws.com",
+                "PublicIp": "98.80.17.198"
+            },
+            "Attachment": {
+                "AttachTime": "2025-03-20T18:04:31+00:00",
+                "AttachmentId": "eni-attach-05b73c1960681ff60",
+                "DeleteOnTermination": false,
+                "DeviceIndex": 2,
+                "NetworkCardIndex": 0,
+                "InstanceOwnerId": "005562793260",
+                "Status": "attached"
+            },
+            "AvailabilityZone": "us-east-1a",
+            "Description": "ClientVPN Endpoint resource. EndpointId: cvpn-endpoint-0c02ded884edf71e1",
+            "Groups": [
+                {
+                    "GroupName": "my-eks-cluster-cluster-20250319123538176900000003",
+                    "GroupId": "sg-009f7e37c98b62b44"
+                }
+            ],
+            "InterfaceType": "interface",
+            "Ipv6Addresses": [],
+            "MacAddress": "02:6a:d8:f4:7b:15",
+            "NetworkInterfaceId": "eni-050456fe43fed1814",
+            "OwnerId": "677276109057",
+            "PrivateDnsName": "ip-10-0-101-81.ec2.internal",
+            "PrivateIpAddress": "10.0.101.81",
+            "PrivateIpAddresses": [
+                {
+                    "Association": {
+                        "IpOwnerId": "005562793260",
+                        "PublicDnsName": "ec2-98-80-17-198.compute-1.amazonaws.com",
+                        "PublicIp": "98.80.17.198"
+                    },
+                    "Primary": true,
+                    "PrivateDnsName": "ip-10-0-101-81.ec2.internal",
+                    "PrivateIpAddress": "10.0.101.81"
+                }
+            ],
+            "RequesterId": "513586326826",
+            "RequesterManaged": false,
+            "SourceDestCheck": true,
+            "Status": "in-use",
+            "SubnetId": "subnet-0c62d5c85cbf3fc25",
+            "TagSet": [],
+            "VpcId": "vpc-00a5791a6a2f92c0e"
+        }
+    ]
+}
