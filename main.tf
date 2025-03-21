@@ -87,7 +87,7 @@ resource "aws_security_group" "ansible_sg" {
   }
 
   tags = {
-    Role = "Ansible-Controller"
+    Role = "Ansible-Controller-final"
   }
 }
 
@@ -113,7 +113,7 @@ resource "aws_instance" "ansible_controller" {
   }
 
   tags = {
-    Name = "Ansible-Controller"
+    Name = "Ansible-Controller-final"
   }
 }
 
@@ -155,7 +155,7 @@ resource "aws_security_group" "jenkins_master_sg" {
   }
 
   tags = {
-    Role = "Jenkins-Master"
+    Role = "Jenkins-Master-final"
   }
 }
 
@@ -175,7 +175,7 @@ resource "aws_instance" "jenkins_master" {
   }
 
   tags = {
-    Name = "Jenkins-Master"
+    Name = "Jenkins-Master-final"
   }
 }
 
@@ -209,7 +209,7 @@ resource "aws_security_group" "jenkins_agent_sg" {
   }
 
   tags = {
-    Role = "Jenkins-Agent"
+    Role = "Jenkins-Agent-final"
   }
 }
 
@@ -223,7 +223,7 @@ resource "aws_instance" "jenkins_agent" {
   key_name               = aws_key_pair.generated_key.key_name
 
   tags = {
-    Name = "Jenkins-Agent"
+    Name = "Jenkins-Agent-final"
   }
 
   lifecycle {
